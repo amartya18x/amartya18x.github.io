@@ -1,0 +1,14 @@
+_site
+.DS_Store
+.jekyll
+.jekyll-metadata
+.bundle
+.sass-cache
+Gemfile
+Gemfile.lock
+node_modules
+tn/
+favicon.ico.jekyll-cache/
+.jekyll-cache/*
+dist/
+.astro/

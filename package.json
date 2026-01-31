@@ -1,0 +1,15 @@
+{
+  "name": "amartya18x-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.17.1",
+    "bibtex-parse-js": "^0.0.24"
+  }
+}

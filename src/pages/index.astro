@@ -1,0 +1,289 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import bibtexParse from 'bibtex-parse-js';
+import bibRaw from '../content/publications.bib?raw';
+
+const posts = await getCollection('posts');
+
+const normalizeCategories = (value) => {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+};
+
+const hasCategory = (entry, category) =>
+  normalizeCategories(entry.data.categories).includes(category);
+
+const byDateDesc = posts
+  .filter((entry) => entry.data.date instanceof Date && !Number.isNaN(entry.data.date.valueOf()))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const talks = byDateDesc.filter(
+  (entry) => hasCategory(entry, 'talk') && entry.data.important === 'new'
+);
+
+const news = byDateDesc.filter(
+  (entry) => hasCategory(entry, 'career') && entry.data.important === 'new'
+);
+
+const newsWithContent = await Promise.all(
+  news.map(async (entry) => ({ entry, Content: (await entry.render()).Content }))
+);
+
+const bibEntries = bibtexParse.toJSON(bibRaw).map(({ citationKey, entryTags }) => {
+  const tags = Object.fromEntries(
+    Object.entries(entryTags || {}).map(([key, value]) => [key.toLowerCase(), value])
+  );
+  return {
+    key: citationKey,
+    ...tags
+  };
+});
+
+const getPublicationDate = (entry) => {
+  if (entry.date) {
+    const parsed = new Date(entry.date);
+    if (!Number.isNaN(parsed.valueOf())) return parsed;
+  }
+  if (entry.year) {
+    const parsed = new Date(Number(entry.year), 0, 1);
+    if (!Number.isNaN(parsed.valueOf())) return parsed;
+  }
+  return new Date(0);
+};
+
+const publications = bibEntries.sort((a, b) => getPublicationDate(b) - getPublicationDate(a));
+const recentPublications = publications.slice(0, 6);
+const publicationsByYear = publications.reduce((acc, entry) => {
+  const year = formatPublicationYear(entry);
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(entry);
+  return acc;
+}, {});
+
+const publicationYears = Object.keys(publicationsByYear).sort((a, b) => Number(b) - Number(a));
+
+const formatTalkDate = (date) =>
+  new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(date);
+
+const formatNewsDate = (date) =>
+  new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
+
+function formatPublicationYear(entry) {
+  if (entry.year) return entry.year;
+  const date = getPublicationDate(entry);
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric' }).format(date);
+}
+
+const buildLinks = (entry) => [
+  entry.arxiv ? { label: 'Arxiv', url: entry.arxiv } : null,
+  entry.paper ? { label: 'Proceedings', url: entry.paper } : null,
+  entry.video ? { label: 'video', url: entry.video } : null,
+  entry.code ? { label: 'code', url: entry.code } : null,
+  entry.poster ? { label: 'poster', url: entry.poster } : null,
+  entry.slides ? { label: 'slides', url: entry.slides } : null
+].filter(Boolean);
+
+const formatConference = (entry) => {
+  const short = entry.shortvenue ?? '';
+  const full = entry.venue ?? entry.journal ?? '';
+  if (short && full && short != full) return `${short} — ${full}`;
+  return short || full;
+};
+---
+<BaseLayout title="Amartya Sanyal">
+  <section class="hero">
+    <div>
+      <h1>Amartya Sanyal</h1>
+      <p class="hero__tagline">
+        Assistant Professor in Machine Learning · University of Copenhagen; Adjunct Assistant Professor at IIT Kanpur
+      </p>
+      <div class="hero__actions">
+        <a class="pill" target="_blank" href="mailto:amartya18x@gmail.com">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 2 8 5 8-5" />
+          </svg>
+          Email
+        </a>
+        <a class="pill" href="https://scholar.google.com/citations?user=cRLqsyYAAAAJ">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h16v12H7l-3 3V5z" />
+          </svg>
+          Scholar
+        </a>
+        <a class="pill" href="https://github.com/amaryta18x">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2a10 10 0 0 0-3 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.4-1-1-1.3-1-1.3-.8-.6.1-.6.1-.6.9.1 1.4 1 1.4 1 .8 1.4 2.1 1 2.6.8.1-.6.3-1 .6-1.2-2.2-.2-4.5-1.1-4.5-4.9 0-1.1.4-2 1-2.7-.1-.2-.4-1.2.1-2.5 0 0 .9-.3 2.8 1a9.6 9.6 0 0 1 5.1 0c1.9-1.3 2.8-1 2.8-1 .5 1.3.2 2.3.1 2.5.6.7 1 1.6 1 2.7 0 3.8-2.3 4.7-4.5 4.9.3.3.7.8.7 1.7v2.6c0 .3.2.6.7.5A10 10 0 0 0 12 2z" />
+          </svg>
+          GitHub
+        </a>
+        <a class="pill" href="https://cope-forml.github.io/openings/">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 12h18M12 3v18" />
+          </svg>
+          Openings
+        </a>
+      </div>
+    </div>
+    <div class="hero__photo">
+      <img src="/images/personal.JPG" alt="profile photo" />
+    </div>
+  </section>
+
+  <section class="section-card">
+    <h2 class="about-title">About</h2>
+    <p class="about-text">
+      I am an <strong> Assistant Professor in Machine Learning </strong>in the
+      <a href="https://di.ku.dk/english/"> Department of Computer Science in the University of Copenhagen</a>
+      and an Adjunct Assistant Professor at the
+      <a href="https://www.cse.iitk.ac.in/">Department of Computer Science, IIT Kanpur</a>. I lead the
+      <a href="https://cope-forml.github.io/">Copenhagen Foundation of Responsible Machine Learning</a>
+      group in UCPH, and my research spans trustworthy machine learning, privacy, robustness, fairness, and learning
+      with limited or imperfect data. 
+      </p>
+
+      <p class="about-text">
+      Prior to this, I was a postdoctoral fellow at the Empirical Inference group in
+      <a href="https://ei.is.mpg.de/"> Max Planck Institute for Intelligent Systems, Tubingen </a> where I worked closely
+      with <a href="https://www.is.mpg.de/~bs"> Prof. Bernhard Schölkopf </a>, and before that I was a postdoctoral fellow
+      at <a href="https://ai.ethz.ch/"> ETH Zurich AI Center</a> where I worked closely with
+      <a href="http://fanny-yang.de/"> Prof. Fanny Yang </a>. I completed my DPhil (PhD) at the
+      <a href="http://www.cs.ox.ac.uk/">Department of Computer Science</a>, University of Oxford, funded by the
+      <a href="https://www.turing.ac.uk/">Turing Doctoral Studentship</a>; I was also a member of the
+      <a href="https://torrvision.com/">Torr Vision Group</a>, and my DPhil advisors were
+      <a href="http://www.cs.ox.ac.uk/people/varun.kanade/myindex.html">Varun Kanade</a> and
+      <a href="https://www.robots.ox.ac.uk/~phst/">Philip H.S.
+      Torr</a>.</p>
+      <p class="about-text">
+      Prior to that, I completed my undergraduate (B.Tech in
+      Computer Science) at the <a href="https://www.cse.iitk.ac.in/"> Indian Institute of Technology, Kanpur</a>. On
+      various occasions, I have spent time at <a href="https://ai.facebook.com/"> Facebook AI Research (FAIR)</a>,
+      <a href="https://cortex.twitter.com/"> Twitter Cortex </a>, <a href="http://lcsl.mit.edu/#/home"> Laboratory for
+      Computational and Statistical Learning</a>, <a href="https://mila.quebec/en/"> Montreal Institute of Learning
+      Algorithms </a>, and Amazon ML.
+    </p>
+  </section>
+
+  <section class="section-card">
+    <h2>Foundations of Responsible Machine Learning</h2>
+    <p class="section-note">Read more about our group <a href="https://cope-forml.github.io/">here</a>.</p>
+    <h3>PhD Students</h3>
+    <ul class="list">
+      <li><a href="https://www.linkedin.com/in/giorgio-racca/">Giorgio Racca</a> (Co-advised with <a href="https://misovalko.github.io/">Michal Valko</a>)</li>
+      <li><a href="https://di.ku.dk/english/staff/?pure=en/persons/913671/">Luka Radic</a></li>
+      <li><a href="https://caroheinz.github.io/">Carolin Heinzler</a> (Co-advised with <a href="https://amiryehudayoff.github.io/home/">Prof. Amir Yehudayoff</a>)</li>
+      <li><a href="https://johannaduengler.github.io/">Johanna Düngler</a> (DDSA PhD fellow; Co-advised with <a href="https://rasmuspagh.net/">Prof. Rasmus Pagh</a>)</li>
+      <li>Max Cairney-Leeming (ELLIS PhD student; Co-advised with <a href="https://cvml.ista.ac.at/">Prof. Christoph H. Lampert</a>)</li>
+      <li><a href="https://anmolg.me/">Anmol Goel</a> (ELLIS PhD Student; Co-advised with <a href="https://www.informatik.tu-darmstadt.de/ukp/ukp_home/head_ukp/index.en.jsp">Prof. Iryna Gurevych</a>)</li>
+      <li><a href="https://scholar.google.com/citations?user=ZRSfdpIAAAAJ&hl=en">Omri Ben-Dov</a> (PhD Student; Co-advised with <a href="https://samirasamadi.com/">Dr. Samira Samadi</a>)</li>
+      <li><a href="https://yaxihu.github.io/">Yaxi Hu</a> (PhD Student; Advised by <a href="https://is.mpg.de/~bs/">Prof. Bernhard Schölkopf</a> and <a href="https://sml.inf.ethz.ch/group/fannyy/">Prof. Fanny Yang</a>)</li>
+    </ul>
+    <h3>Postdoc</h3>
+    <ul class="list">
+      <li><a href="https://www.vikrantsinghal.com/">Vikrant Singhal</a> (Fixed Term Assistant Professor)</li>
+    </ul>
+  </section>
+
+  <section class="section-card">
+    <h2>Upcoming/Recent Talks</h2>
+    <ul class="list-rows">
+      {talks.map((post) => (
+        <li class="row">
+          <span class="badge">{formatTalkDate(post.data.date)}</span>
+          <div class="row-content">
+            <strong>{post.data.title}</strong>
+            <span class="row-meta" set:html={post.data.venue ?? ''} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section-card">
+    <h2>Recent News</h2>
+    <ul class="list-rows">
+      {newsWithContent.map(({ entry, Content }) => (
+        <li class="row">
+          <span class="badge">{formatNewsDate(entry.data.date)}</span>
+          <div class="row-content">
+            <Content />
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section-card">
+    <div class="section-head">
+      <h2>Publications</h2>
+      <span class="section-meta">Recent papers highlighted; full list grouped by year.</span>
+    </div>
+    <div class="pub-block">
+      <div class="pub-block__title">Recent papers</div>
+      <ul class="pub-list">
+        {recentPublications.map((entry) => {
+          const links = buildLinks(entry);
+          return (
+            <li class="pub-item">
+              <div class="pub-head">
+                <span class="pub-conference" set:html={formatConference(entry)} />
+                <span class="pub-year">{formatPublicationYear(entry)}</span>
+              </div>
+              <strong class="pub-title">{entry.title}</strong>
+              <div class="pub-authors" set:html={entry.author ?? ''} />
+              {links.length ? (
+                <div class="pub-links">
+                  {links.map((link, index) => (
+                    <span>
+                      <a class="link-pill" href={link.url}>{link.label}</a>
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="pub-block">
+      <div class="pub-block__title">All papers by year</div>
+      <div class="pub-years">
+        {publicationYears.map((year, index) => (
+          <details class="pub-year-group" open={index < 2}>
+            <summary>
+              <span>{year}</span>
+              <span class="year-count">{publicationsByYear[year].length} papers</span>
+            </summary>
+            <ul class="pub-list">
+              {publicationsByYear[year].map((entry) => {
+                const links = buildLinks(entry);
+                return (
+                  <li class="pub-item">
+                    <div class="pub-head">
+                      <span class="pub-conference" set:html={formatConference(entry)} />
+                      <span class="pub-year">{formatPublicationYear(entry)}</span>
+                    </div>
+                    <strong class="pub-title">{entry.title}</strong>
+                    <div class="pub-authors" set:html={entry.author ?? ''} />
+                    {links.length ? (
+                      <div class="pub-links">
+                        {links.map((link) => (
+                          <span>
+                            <a class="link-pill" href={link.url}>{link.label}</a>
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
