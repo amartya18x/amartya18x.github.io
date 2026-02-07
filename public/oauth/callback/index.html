@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Opening Inu Finance</title>
+  </head>
+  <body style="font-family: sans-serif; padding: 24px;">
+    <h3>Opening Inu Finance…</h3>
+    <p>If nothing happens, tap the link below:</p>
+    <p><a id="open">Open app</a></p>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const target = new URL("com.inufinance.app://oauth/callback");
+      for (const key of ["code", "state", "error", "error_description"]) {
+        const val = params.get(key);
+        if (val) target.searchParams.set(key, val);
+      }
+      document.getElementById("open").href = target.toString();
+      window.location.replace(target.toString());
+    </script>
+  </body>
+</html>
