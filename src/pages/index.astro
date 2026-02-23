@@ -184,20 +184,22 @@ const formatConference = (entry) => {
     </ul>
   </section>
 
-  <section class="section-card">
-    <h2>Upcoming/Recent Talks</h2>
-    <ul class="list-rows">
-      {talks.map((post) => (
-        <li class="row">
-          <span class="badge">{formatTalkDate(post.data.date)}</span>
-          <div class="row-content">
-            <strong>{post.data.title}</strong>
-            <span class="row-meta" set:html={post.data.venue ?? ''} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  </section>
+	  {talks.length ? (
+	    <section class="section-card">
+	      <h2>Upcoming/Recent Talks</h2>
+	      <ul class="list-rows">
+	        {talks.map((post) => (
+	          <li class="row">
+	            <span class="badge">{formatTalkDate(post.data.date)}</span>
+	            <div class="row-content">
+	              <strong>{post.data.title}</strong>
+	              <span class="row-meta" set:html={post.data.venue ?? ''} />
+	            </div>
+	          </li>
+	        ))}
+	      </ul>
+	    </section>
+	  ) : null}
 
   <section class="section-card">
     <h2>Recent News</h2>
