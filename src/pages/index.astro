@@ -18,8 +18,16 @@ const byDateDesc = posts
   .filter((entry) => entry.data.date instanceof Date && !Number.isNaN(entry.data.date.valueOf()))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
+const now = new Date();
+const RECENT_TALKS_DAYS = 180;
+const recentTalkCutoff = new Date(now);
+recentTalkCutoff.setUTCDate(recentTalkCutoff.getUTCDate() - RECENT_TALKS_DAYS);
+
 const talks = byDateDesc.filter(
-  (entry) => hasCategory(entry, 'talk') && entry.data.important === 'new'
+  (entry) =>
+    hasCategory(entry, 'talk') &&
+    entry.data.date instanceof Date &&
+    entry.data.date.valueOf() >= recentTalkCutoff.valueOf()
 );
 
 	const news = byDateDesc.filter(
