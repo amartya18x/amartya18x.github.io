@@ -36,4 +36,20 @@ const pages = defineCollection({
   })
 });
 
-export const collections = { posts, pages };
+const news = defineCollection({
+  type: 'data',
+  schema: z.object({
+    items: z
+      .array(
+        z.object({
+          date: z.coerce.date(),
+          html: z.string(),
+          showOnHome: z.boolean().optional().default(true),
+          sort: z.number().int().optional()
+        })
+      )
+      .default([])
+  })
+});
+
+export const collections = { posts, pages, news };

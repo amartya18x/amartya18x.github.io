@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
-import bibtexParse from 'bibtex-parse-js';
-import bibRaw from '../content/publications.bib?raw';
+	import BaseLayout from '../layouts/BaseLayout.astro';
+	import { getCollection, getEntry } from 'astro:content';
+	import bibtexParse from 'bibtex-parse-js';
+	import bibRaw from '../content/publications.bib?raw';
 
 const posts = await getCollection('posts');
 
@@ -22,13 +22,25 @@ const talks = byDateDesc.filter(
   (entry) => hasCategory(entry, 'talk') && entry.data.important === 'new'
 );
 
-const news = byDateDesc.filter(
-  (entry) => hasCategory(entry, 'career') && entry.data.important === 'new'
-);
+	const news = byDateDesc.filter(
+	  (entry) => hasCategory(entry, 'career') && entry.data.important === 'new'
+	);
 
-const newsWithContent = await Promise.all(
-  news.map(async (entry) => ({ entry, Content: (await entry.render()).Content }))
-);
+	const homeNews = await getEntry('news', 'home');
+	const newsItems = (homeNews?.data.items ?? [])
+	  .filter((item) => item.showOnHome !== false)
+	  .sort((a, b) => {
+	    const dateDiff = b.date.valueOf() - a.date.valueOf();
+	    if (dateDiff !== 0) return dateDiff;
+	    return (b.sort ?? 0) - (a.sort ?? 0);
+	  });
+
+		const legacyNewsWithContent =
+		  newsItems.length === 0
+		    ? await Promise.all(news.map(async (entry) => ({ entry, Content: (await entry.render()).Content })))
+		    : [];
+
+		const showNewsSection = newsItems.length > 0 || legacyNewsWithContent.length > 0;
 
 const bibEntries = bibtexParse.toJSON(bibRaw).map(({ citationKey, entryTags }) => {
   const tags = Object.fromEntries(
@@ -201,19 +213,30 @@ const formatConference = (entry) => {
 	    </section>
 	  ) : null}
 
-  <section class="section-card">
-    <h2>Recent News</h2>
-    <ul class="list-rows">
-      {newsWithContent.map(({ entry, Content }) => (
-        <li class="row">
-          <span class="badge">{formatNewsDate(entry.data.date)}</span>
-          <div class="row-content">
-            <Content />
-          </div>
-        </li>
-      ))}
-    </ul>
-  </section>
+		  {showNewsSection ? (
+		    <section class="section-card">
+		      <h2>Recent News</h2>
+		      <ul class="list-rows">
+		        {newsItems.length
+		          ? newsItems.map((item) => (
+		              <li class="row">
+		                <span class="badge">{formatNewsDate(item.date)}</span>
+		                <div class="row-content">
+		                  <p set:html={item.html}></p>
+		                </div>
+		              </li>
+		            ))
+		          : legacyNewsWithContent.map(({ entry, Content }) => (
+		              <li class="row">
+		                <span class="badge">{formatNewsDate(entry.data.date)}</span>
+		                <div class="row-content">
+		                  <Content />
+		                </div>
+		              </li>
+		            ))}
+		      </ul>
+		    </section>
+		  ) : null}
 
   <section class="section-card">
     <div class="section-head">
