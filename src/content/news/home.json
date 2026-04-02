@@ -1,8 +1,12 @@
 {
   "items": [
     {
+      "date": "2026-04-02T00:00:00Z",
+      "html": "Three papers were accepted at <a href=\"https://tpdp.journalprivacyconfidentiality.org/\">TPDP 2026</a>: <a href=\"https://arxiv.org/abs/2603.03172\">Less Noise, Same Certificate: Retain Sensitivity for Unlearning</a>, <a href=\"https://arxiv.org/abs/2602.10820\">Adaptive Sampling for Private Worst-Case Group Optimization</a>, and <a href=\"https://arxiv.org/abs/2601.21719\">LoRA and Privacy: When Random Projections Help (and When They Don&apos;t)</a>."
+    },
+    {
       "date": "2026-02-23T00:01:00Z",
-      "html": "Our paper “Learning in an Echo Chamber: Online Learning with Replay Adversary” was accepted at SODA 2026."
+      "html": "Our paper “Learning in an Echo Chamber: Online Learning with Replay Adversary” was accepted at SODA 2026 and selected for FORC highlights."
     },
     {
       "date": "2026-02-23T00:00:00Z",
