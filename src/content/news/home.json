@@ -1,6 +1,10 @@
 {
   "items": [
     {
+      "date": "2026-05-07T00:00:00Z",
+      "html": "Our paper <a href=\"https://arxiv.org/abs/2603.11784\">Language Generation with Replay: A Learning-Theoretic View of Model Collapse</a> was accepted at <a href=\"https://icml.cc/\">ICML 2026</a>."
+    },
+    {
       "date": "2026-04-02T00:00:00Z",
       "html": "Three papers were accepted at <a href=\"https://tpdp.journalprivacyconfidentiality.org/\">TPDP 2026</a>: <a href=\"https://arxiv.org/abs/2603.03172\">Less Noise, Same Certificate: Retain Sensitivity for Unlearning</a>, <a href=\"https://arxiv.org/abs/2602.10820\">Adaptive Sampling for Private Worst-Case Group Optimization</a>, and <a href=\"https://arxiv.org/abs/2601.21719\">LoRA and Privacy: When Random Projections Help (and When They Don&apos;t)</a>."
     },
