@@ -455,3 +455,42 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+/* Navigation, publication browsing, and stable archives. */
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 24px; }
+.site-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; font-size: 0.92rem; }
+.site-nav + .hero { margin-top: 28px; }
+.site-nav a { padding: 5px 0; }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.hero__photo img { width: 100%; height: auto; }
+.publication-controls { margin-bottom: 24px; }
+.publication-controls label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.95rem; }
+.publication-controls input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: white; color: var(--text); font: inherit; }
+.topic-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 18px; }
+.topic-filter { padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: white; color: var(--accent-strong); font: inherit; font-size: 0.85rem; cursor: pointer; }
+.topic-filter[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: white; }
+.pub-distinction { width: fit-content; color: var(--accent-strong); background: rgba(47, 95, 87, 0.08); padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+.pub-year-group summary::before { content: '+'; width: 16px; }
+.pub-year-group[open] summary::before { content: '−'; }
+.pub-year-group summary > span:first-of-type { flex: 1; }
+.talk-archive { margin-top: 20px; }
+.talk-archive summary { color: var(--accent-strong); cursor: pointer; font-weight: 600; }
+.talk-archive .list-rows { margin-top: 12px; }
+#talks .row { grid-template-columns: 106px 1fr; }
+#group h3, #teaching h3, #service h3 { margin-top: 22px; }
+#group h3:first-of-type, #teaching h3:first-of-type, #service h3:first-of-type { margin-top: 0; }
+@media (max-width: 600px) {
+  main { padding: 28px 16px 48px; }
+  .hero, .section-card { padding: 22px; }
+  section { margin-top: 30px; }
+  .section-head { flex-direction: column; gap: 0; }
+  #talks .row { grid-template-columns: 1fr; }
+  .badge { width: fit-content; }
+  .pub-authors, .pub-title, .list li { overflow-wrap: anywhere; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; }
+}

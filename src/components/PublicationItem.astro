@@ -1,0 +1,25 @@
+---
+import { formatConference, plainText } from '../lib/publications';
+const { entry } = Astro.props;
+const links = [
+  entry.arxiv ? { label: 'arXiv', url: entry.arxiv } : null,
+  entry.paper ? { label: 'Paper', url: entry.paper } : null,
+  entry.video ? { label: 'Video', url: entry.video } : null,
+  entry.code ? { label: 'Code', url: entry.code } : null,
+  entry.poster ? { label: 'Poster', url: entry.poster } : null,
+  entry.slides ? { label: 'Slides', url: entry.slides } : null,
+  { label: 'BibTeX', url: `/citations/${entry.key}.bib` },
+].filter(Boolean);
+---
+<li class="pub-item" data-topics={JSON.stringify(entry.topics)} data-search={plainText(`${entry.title} ${entry.author}`).toLowerCase()}>
+  <div class="pub-head">
+    <span class="pub-conference" set:html={formatConference(entry)} />
+    <span class="pub-year">{entry.year}</span>
+  </div>
+  <strong class="pub-title">{entry.title}</strong>
+  <div class="pub-authors" set:html={entry.author ?? ''} />
+  {entry.spotlight && <span class="pub-distinction">{entry.spotlight}</span>}
+  <div class="pub-links">
+    {links.map((link) => <a class="link-pill" href={link.url} download={link.label === 'BibTeX' || undefined} aria-label={`${link.label} for ${entry.title}`}>{link.label}</a>)}
+  </div>
+</li>

@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "date": "2026-10-05T00:00:00Z",
+      "html": "My new preprint <a href=\"https://arxiv.org/abs/2610.06822\">Private online learning and prediction for Littlestone classes</a> is now available on arXiv."
+    },
+    {
+      "date": "2026-09-04T00:00:00Z",
+      "html": "Our paper <a href=\"https://arxiv.org/abs/2508.15374\">Fairness for the People, by the People: Minority Collective Action</a> was accepted at <a href=\"https://eaamo.org/\">EAAMO 2026</a>."
+    },
+    {
+      "date": "2026-08-01T00:00:00Z",
+      "html": "Our paper <a href=\"https://openreview.net/forum?id=lyvCVfTdiY\">Online Learning and Unlearning: Efficient Algorithms with Near-Optimal Regret Guarantees</a> was published in TMLR."
+    },
+    {
       "date": "2026-07-03T00:00:00Z",
       "html": "Amartya co-organised the <a href=\"https://ltsscopenhagen.github.io/\">Learning Theory Summer School and Workshop</a> and the <a href=\"https://p1dpml.github.io/workshops/workshop-1.html\">Workshop on Privacy and Unlearning</a> in Copenhagen."
     },
@@ -22,15 +34,15 @@
     },
     {
       "date": "2025-09-21T00:00:00Z",
-      "html": "Our paper titled <a href=\"https://arxiv.org/abs/2508.10879\">An Iterative Algorithm for Differentially Private k-PCA with Adaptive Noise</a> is accepted to <a href=\"https://neurips.cc\">NeurIPS 2025</a>. See you in San Diego and Copenhagen!"
+      "html": "Our paper titled <a href=\"https://arxiv.org/abs/2508.10879\">An Iterative Algorithm for Differentially Private k-PCA with Adaptive Noise</a> was accepted at <a href=\"https://neurips.cc\">NeurIPS 2025</a>."
     },
     {
       "date": "2025-09-18T18:08:39Z",
-      "html": "I will be co-hosting two events at <a href=\"https://eurips.cc/\">EurIPS 2025</a>: the <a href=\"https://www.let-all.com/\">Learning Theory Alliance</a> affinity event and the EurIPS <a href=\"https://ppml-eurips-2025.github.io/\">Privacy-Preserving Machine Learning Workshop</a>."
+      "html": "I co-hosted two events at <a href=\"https://eurips.cc/\">EurIPS 2025</a>: the <a href=\"https://www.let-all.com/\">Learning Theory Alliance</a> affinity event and the EurIPS <a href=\"https://ppml-eurips-2025.github.io/\">Privacy-Preserving Machine Learning Workshop</a>."
     },
     {
       "date": "2025-01-23T00:00:00Z",
-      "html": "I received the <a href=\"https://villumfonden.dk/en/news/millions-funding-young-researchers\">Villum Young Investigator Grant</a> and will be working on topics related to privacy, unlearning, and online learning. I will be hiring motivated <a href=\"https://cope-forml.github.io/openings/\">PhD students and Postdocs</a>. Email me if you think you would be a good match."
+      "html": "I received the <a href=\"https://villumfonden.dk/en/news/millions-funding-young-researchers\">Villum Young Investigator Grant</a> for research on privacy, unlearning, and online learning. See our <a href=\"https://cope-forml.github.io/openings/\">current PhD and postdoc openings</a>."
     },
     {
       "date": "2025-01-22T18:08:39Z",

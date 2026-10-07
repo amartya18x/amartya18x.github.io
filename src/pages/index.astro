@@ -1,118 +1,29 @@
 ---
-	import BaseLayout from '../layouts/BaseLayout.astro';
-	import { getCollection, getEntry } from 'astro:content';
-	import bibtexParse from 'bibtex-parse-js';
-	import bibRaw from '../content/publications.bib?raw';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PublicationItem from '../components/PublicationItem.astro';
+import { getCollection, getEntry } from 'astro:content';
+import { publications, topics } from '../lib/publications';
 
 const posts = await getCollection('posts');
-
-const normalizeCategories = (value) => {
-  if (!value) return [];
-  return Array.isArray(value) ? value : [value];
-};
-
-const hasCategory = (entry, category) =>
-  normalizeCategories(entry.data.categories).includes(category);
-
-const byDateDesc = posts
-  .filter((entry) => entry.data.date instanceof Date && !Number.isNaN(entry.data.date.valueOf()))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-const now = new Date();
-const RECENT_TALKS_DAYS = 180;
-const recentTalkCutoff = new Date(now);
-recentTalkCutoff.setUTCDate(recentTalkCutoff.getUTCDate() - RECENT_TALKS_DAYS);
-
-const talks = byDateDesc.filter(
-  (entry) =>
-    hasCategory(entry, 'talk') &&
-    entry.data.date instanceof Date &&
-    entry.data.date.valueOf() >= recentTalkCutoff.valueOf()
-);
-
-	const news = byDateDesc.filter(
-	  (entry) => hasCategory(entry, 'career') && entry.data.important === 'new'
-	);
-
-	const homeNews = await getEntry('news', 'home');
-	const newsItems = (homeNews?.data.items ?? [])
-	  .filter((item) => item.showOnHome !== false)
-	  .sort((a, b) => {
-	    const dateDiff = b.date.valueOf() - a.date.valueOf();
-	    if (dateDiff !== 0) return dateDiff;
-	    return (b.sort ?? 0) - (a.sort ?? 0);
-	  });
-
-		const legacyNewsWithContent =
-		  newsItems.length === 0
-		    ? await Promise.all(news.map(async (entry) => ({ entry, Content: (await entry.render()).Content })))
-		    : [];
-
-		const showNewsSection = newsItems.length > 0 || legacyNewsWithContent.length > 0;
-
-const bibEntries = bibtexParse.toJSON(bibRaw).map(({ citationKey, entryTags }) => {
-  const tags = Object.fromEntries(
-    Object.entries(entryTags || {}).map(([key, value]) => [key.toLowerCase(), value])
-  );
-  return {
-    key: citationKey,
-    ...tags
-  };
-});
-
-const getPublicationDate = (entry) => {
-  if (entry.date) {
-    const parsed = new Date(entry.date);
-    if (!Number.isNaN(parsed.valueOf())) return parsed;
-  }
-  if (entry.year) {
-    const parsed = new Date(Number(entry.year), 0, 1);
-    if (!Number.isNaN(parsed.valueOf())) return parsed;
-  }
-  return new Date(0);
-};
-
-const publications = bibEntries.sort((a, b) => getPublicationDate(b) - getPublicationDate(a));
+const talks = posts.filter((entry) => {
+  const categories = Array.isArray(entry.data.categories) ? entry.data.categories : [entry.data.categories];
+  return categories.includes('talk') && entry.data.date instanceof Date && !Number.isNaN(entry.data.date.valueOf());
+}).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+// Keep a stable archive: talks remain visible between static-site builds.
+const recentTalks = talks.slice(0, 4);
+const archivedTalks = talks.slice(4);
+const homeNews = await getEntry('news', 'home');
+const newsItems = (homeNews?.data.items ?? []).filter((item) => item.showOnHome !== false)
+  .sort((a, b) => b.date.valueOf() - a.date.valueOf() || (b.sort ?? 0) - (a.sort ?? 0));
 const recentPublications = publications.slice(0, 6);
-const publicationsByYear = publications.reduce((acc, entry) => {
-  const year = formatPublicationYear(entry);
-  if (!acc[year]) acc[year] = [];
-  acc[year].push(entry);
-  return acc;
-}, {});
-
-const publicationYears = Object.keys(publicationsByYear).sort((a, b) => Number(b) - Number(a));
-
-const formatTalkDate = (date) =>
-  new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(date);
-
-const formatNewsDate = (date) =>
-  new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
-
-function formatPublicationYear(entry) {
-  if (entry.year) return entry.year;
-  const date = getPublicationDate(entry);
-  return new Intl.DateTimeFormat('en-US', { year: 'numeric' }).format(date);
-}
-
-const buildLinks = (entry) => [
-  entry.arxiv ? { label: 'Arxiv', url: entry.arxiv } : null,
-  entry.paper ? { label: 'Proceedings', url: entry.paper } : null,
-  entry.video ? { label: 'video', url: entry.video } : null,
-  entry.code ? { label: 'code', url: entry.code } : null,
-  entry.poster ? { label: 'poster', url: entry.poster } : null,
-  entry.slides ? { label: 'slides', url: entry.slides } : null
-].filter(Boolean);
-
-const formatConference = (entry) => {
-  const short = entry.shortvenue ?? '';
-  const full = entry.venue ?? entry.journal ?? '';
-  if (short && full && short != full) return `${short} — ${full}`;
-  return short || full;
-};
+const publicationYears = [...new Set(publications.map((entry) => entry.year))].sort((a, b) => Number(b) - Number(a));
+const formatDate = (date, day = false) => new Intl.DateTimeFormat('en-US', { month: 'short', ...(day ? { day: 'numeric' } : {}), year: 'numeric', timeZone: 'UTC' }).format(date);
 ---
-<BaseLayout title="Amartya Sanyal">
-  <section class="hero">
+<BaseLayout title="Amartya Sanyal" description="Amartya Sanyal, Assistant Professor in Machine Learning at the University of Copenhagen. Research on privacy, unlearning, robustness, fairness, and learning theory.">
+  <nav class="site-nav" aria-label="Sections">
+    <a href="#about">About</a><a href="#group">Group</a><a href="#news">News</a><a href="#publications">Publications</a><a href="#talks">Talks</a><a href="#teaching">Teaching</a><a href="#service">Funding &amp; Service</a>
+  </nav>
+  <section class="hero" id="top">
     <div>
       <h1>Amartya Sanyal</h1>
       <p class="hero__tagline">
@@ -134,12 +45,13 @@ const formatConference = (entry) => {
           </svg>
           Scholar
         </a>
-        <a class="pill" href="https://github.com/amaryta18x">
+        <a class="pill" href="https://github.com/amartya18x">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 2a10 10 0 0 0-3 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.4-1-1-1.3-1-1.3-.8-.6.1-.6.1-.6.9.1 1.4 1 1.4 1 .8 1.4 2.1 1 2.6.8.1-.6.3-1 .6-1.2-2.2-.2-4.5-1.1-4.5-4.9 0-1.1.4-2 1-2.7-.1-.2-.4-1.2.1-2.5 0 0 .9-.3 2.8 1a9.6 9.6 0 0 1 5.1 0c1.9-1.3 2.8-1 2.8-1 .5 1.3.2 2.3.1 2.5.6.7 1 1.6 1 2.7 0 3.8-2.3 4.7-4.5 4.9.3.3.7.8.7 1.7v2.6c0 .3.2.6.7.5A10 10 0 0 0 12 2z" />
           </svg>
           GitHub
         </a>
+        <a class="pill" href="/files/cv.pdf">CV</a>
         <a class="pill" href="https://cope-forml.github.io/openings/">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 12h18M12 3v18" />
@@ -149,18 +61,18 @@ const formatConference = (entry) => {
       </div>
     </div>
     <div class="hero__photo">
-      <img src="/images/personal.JPG" alt="profile photo" />
+      <img src="/images/personal.webp" alt="Amartya Sanyal" width="1200" height="800" fetchpriority="high" />
     </div>
   </section>
 
-  <section class="section-card">
+  <section class="section-card" id="about">
     <h2 class="about-title">About</h2>
     <p class="about-text">
       I am an <strong> Assistant Professor in Machine Learning </strong>in the
       <a href="https://di.ku.dk/english/"> Department of Computer Science in the University of Copenhagen</a>
       and an Adjunct Assistant Professor at the
       <a href="https://www.cse.iitk.ac.in/">Department of Computer Science, IIT Kanpur</a>. I lead the
-      <a href="https://cope-forml.github.io/">Copenhagen Foundation of Responsible Machine Learning</a>
+      <a href="https://cope-forml.github.io/">Foundations of Responsible Machine Learning</a>
       group in UCPH, and my research spans trustworthy machine learning, privacy, robustness, fairness, and learning
       with limited or imperfect data. 
       </p>
@@ -187,139 +99,143 @@ const formatConference = (entry) => {
     </p>
   </section>
 
-  <section class="section-card">
+  <section class="section-card" id="group">
     <h2>Foundations of Responsible Machine Learning</h2>
     <p class="section-note">Read more about our group <a href="https://cope-forml.github.io/">here</a>.</p>
     <h3>PhD Students</h3>
     <ul class="list">
-      <li><a href="https://www.linkedin.com/in/giorgio-racca/">Giorgio Racca</a> (Co-advised with <a href="https://misovalko.github.io/">Michal Valko</a>)</li>
-      <li><a href="https://di.ku.dk/english/staff/?pure=en/persons/913671/">Luka Radic</a></li>
+      <li><a href="https://giorgio-racca.github.io/">Giorgio Racca</a> (Co-advised with <a href="https://misovalko.github.io/">Michal Valko</a>)</li>
+      <li><a href="https://di.ku.dk/english/staff/?pure=en/persons/913671/">Luka Radić</a></li>
       <li><a href="https://caroheinz.github.io/">Carolin Heinzler</a> (Co-advised with <a href="https://amiryehudayoff.github.io/home/">Prof. Amir Yehudayoff</a>)</li>
       <li><a href="https://johannaduengler.github.io/">Johanna Düngler</a> (DDSA PhD fellow; Co-advised with <a href="https://rasmuspagh.net/">Prof. Rasmus Pagh</a>)</li>
-      <li>Max Cairney-Leeming (ELLIS PhD student; Co-advised with <a href="https://cvml.ista.ac.at/">Prof. Christoph H. Lampert</a>)</li>
-      <li><a href="https://anmolg.me/">Anmol Goel</a> (ELLIS PhD Student; Co-advised with <a href="https://www.informatik.tu-darmstadt.de/ukp/ukp_home/head_ukp/index.en.jsp">Prof. Iryna Gurevych</a>)</li>
-      <li><a href="https://scholar.google.com/citations?user=ZRSfdpIAAAAJ&hl=en">Omri Ben-Dov</a> (PhD Student; Co-advised with <a href="https://samirasamadi.com/">Dr. Samira Samadi</a>)</li>
+      <li><a href="https://maxcl.co.uk/">Max Cairney-Leeming</a> (ELLIS PhD student; Co-advised with <a href="https://cvml.ista.ac.at/">Prof. Christoph H. Lampert</a>)</li>
+      <li><a href="https://www.goel.ai/">Anmol Goel</a> (ELLIS PhD Student; Co-advised with <a href="https://www.informatik.tu-darmstadt.de/ukp/ukp_home/head_ukp/index.en.jsp">Prof. Iryna Gurevych</a>)</li>
+      <li><a href="https://beomri.github.io/">Omri Ben-Dov</a> (PhD Student; Co-advised with <a href="https://samirasamadi.com/">Dr. Samira Samadi</a>)</li>
       <li><a href="https://yaxihu.github.io/">Yaxi Hu</a> (PhD Student; Advised by <a href="https://is.mpg.de/~bs/">Prof. Bernhard Schölkopf</a> and <a href="https://sml.inf.ethz.ch/group/fannyy/">Prof. Fanny Yang</a>)</li>
     </ul>
-    <h3>Postdoc</h3>
+    <h3>Senior Researchers and Postdocs</h3>
     <ul class="list">
       <li><a href="https://www.vikrantsinghal.com/">Vikrant Singhal</a> (Fixed Term Assistant Professor)</li>
+      <li><a href="https://prathameshd.com/">Prathamesh Dharangutte</a> (Postdoc)</li>
+      <li><a href="https://christianlebeda.github.io/">Christian Janos Lebeda</a> (Carlsberg Reintegration Fellow; Postdoc)</li>
+    </ul>
+    <h3>Former Visiting Researchers</h3>
+    <ul class="list">
+      <li>Erell Boutin-Jeanniard du Dot (now a PhD student at the University of British Columbia)</li>
     </ul>
   </section>
 
-	  {talks.length ? (
-	    <section class="section-card">
-	      <h2>Upcoming/Recent Talks</h2>
-	      <ul class="list-rows">
-	        {talks.map((post) => (
-	          <li class="row">
-	            <span class="badge">{formatTalkDate(post.data.date)}</span>
-	            <div class="row-content">
-	              <strong>{post.data.title}</strong>
-	              <span class="row-meta" set:html={post.data.venue ?? ''} />
-	            </div>
-	          </li>
-	        ))}
-	      </ul>
-	    </section>
-	  ) : null}
+  <section class="section-card" id="news">
+    <h2>Recent News</h2>
+    <ul class="list-rows">
+      {newsItems.map((item) => <li class="row"><time class="badge" datetime={item.date.toISOString()}>{formatDate(item.date)}</time><div class="row-content"><p set:html={item.html}></p></div></li>)}
+    </ul>
+  </section>
 
-		  {showNewsSection ? (
-		    <section class="section-card">
-		      <h2>Recent News</h2>
-		      <ul class="list-rows">
-		        {newsItems.length
-		          ? newsItems.map((item) => (
-		              <li class="row">
-		                <span class="badge">{formatNewsDate(item.date)}</span>
-		                <div class="row-content">
-		                  <p set:html={item.html}></p>
-		                </div>
-		              </li>
-		            ))
-		          : legacyNewsWithContent.map(({ entry, Content }) => (
-		              <li class="row">
-		                <span class="badge">{formatNewsDate(entry.data.date)}</span>
-		                <div class="row-content">
-		                  <Content />
-		                </div>
-		              </li>
-		            ))}
-		      </ul>
-		    </section>
-		  ) : null}
-
-  <section class="section-card">
-    <div class="section-head">
-      <h2>Publications</h2>
-      <span class="section-meta">Recent papers highlighted; full list grouped by year.</span>
+  <section class="section-card" id="publications">
+    <div class="section-head"><h2>Publications</h2><span class="section-meta">Recent papers and the full list by publication year.</span></div>
+    <div class="publication-controls">
+      <label for="publication-search">Search publications</label>
+      <input type="search" id="publication-search" placeholder="Paper title or author" />
+      <div class="topic-filters" role="group" aria-label="Filter publications by topic">
+        {['All', ...topics].map((topic) => <button type="button" class="topic-filter" data-topic={topic} aria-pressed={topic === 'All' ? 'true' : 'false'}>{topic}</button>)}
+      </div>
+      <p id="publication-count" class="section-note" role="status" aria-live="polite">{publications.length} publications</p>
     </div>
-    <div class="pub-block">
-      <div class="pub-block__title">Recent papers</div>
-      <ul class="pub-list">
-        {recentPublications.map((entry) => {
-          const links = buildLinks(entry);
-          return (
-            <li class="pub-item">
-              <div class="pub-head">
-                <span class="pub-conference" set:html={formatConference(entry)} />
-                <span class="pub-year">{formatPublicationYear(entry)}</span>
-              </div>
-              <strong class="pub-title">{entry.title}</strong>
-              <div class="pub-authors" set:html={entry.author ?? ''} />
-              {links.length ? (
-                <div class="pub-links">
-                  {links.map((link, index) => (
-                    <span>
-                      <a class="link-pill" href={link.url}>{link.label}</a>
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>
+    <div class="pub-block" id="recent-publications">
+      <h3 class="pub-block__title">Recent papers</h3>
+      <ul class="pub-list">{recentPublications.map((entry) => <PublicationItem entry={entry} />)}</ul>
     </div>
-
     <div class="divider"></div>
-
     <div class="pub-block">
-      <div class="pub-block__title">All papers by year</div>
+      <h3 class="pub-block__title">All papers by year</h3>
+      <p id="publication-empty" hidden>No publications match your search. Try another title, author, or topic.</p>
       <div class="pub-years">
-        {publicationYears.map((year, index) => (
-          <details class="pub-year-group" open={index < 2}>
-            <summary>
-              <span>{year}</span>
-              <span class="year-count">{publicationsByYear[year].length} papers</span>
-            </summary>
-            <ul class="pub-list">
-              {publicationsByYear[year].map((entry) => {
-                const links = buildLinks(entry);
-                return (
-                  <li class="pub-item">
-                    <div class="pub-head">
-                      <span class="pub-conference" set:html={formatConference(entry)} />
-                      <span class="pub-year">{formatPublicationYear(entry)}</span>
-                    </div>
-                    <strong class="pub-title">{entry.title}</strong>
-                    <div class="pub-authors" set:html={entry.author ?? ''} />
-                    {links.length ? (
-                      <div class="pub-links">
-                        {links.map((link) => (
-                          <span>
-                            <a class="link-pill" href={link.url}>{link.label}</a>
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-          </details>
-        ))}
+        {publicationYears.map((year, index) => <details class="pub-year-group" open={index < 2} data-default-open={index < 2 ? 'true' : 'false'}>
+          <summary><span>{year}</span><span class="year-count">{publications.filter((entry) => entry.year === year).length} papers</span></summary>
+          <ul class="pub-list">{publications.filter((entry) => entry.year === year).map((entry) => <PublicationItem entry={entry} />)}</ul>
+        </details>)}
       </div>
     </div>
   </section>
+
+  <section class="section-card" id="talks">
+    <h2>Talks and Tutorials</h2>
+    <ul class="list-rows">
+      {recentTalks.map((post) => <li class="row"><time class="badge" datetime={post.data.date.toISOString()}>{formatDate(post.data.date, true)}</time><div class="row-content"><strong>{post.data.title}</strong><span class="row-meta" set:html={post.data.venue ?? ''} /></div></li>)}
+    </ul>
+    {archivedTalks.length > 0 && <details class="talk-archive"><summary>Earlier talks</summary><ul class="list-rows">{archivedTalks.map((post) => <li class="row"><time class="badge" datetime={post.data.date.toISOString()}>{formatDate(post.data.date, true)}</time><div class="row-content"><strong>{post.data.title}</strong><span class="row-meta" set:html={post.data.venue ?? ''} /></div></li>)}</ul></details>}
+  </section>
+
+  <section class="section-card" id="teaching">
+    <h2>Teaching</h2>
+    <h3>University of Copenhagen · 2026–27</h3>
+    <ul class="list">
+      <li><a href="https://kurser.ku.dk/course/NDAK26000U/2026-2027">Privacy in Machine Learning (PriMaL)</a> — Course coordinator; Block 1. Differential privacy, privacy attacks, and federated learning.</li>
+      <li><a href="https://kurser.ku.dk/course/ndak22001u">Machine Learning B</a> — Lecturer with Yevgeny Seldin and Nirupam Gupta; Block 4.</li>
+    </ul>
+    <h3>Previous Teaching</h3>
+    <ul class="list">
+      <li>Guarantees in Machine Learning; Projects in Machine Learning Research — ETH Zürich, 2022.</li>
+      <li>Computational Learning Theory; Theory of Optimization; Machine Learning — University of Oxford, 2018–21.</li>
+      <li>Linear Algebra, Real Analysis and ODEs — IIT Kanpur, 2014.</li>
+    </ul>
+  </section>
+
+  <section class="section-card" id="service">
+    <h2>Funding and Academic Service</h2>
+    <h3>Research Funding and Programs</h3>
+    <ul class="list">
+      <li><strong>Villum Young Investigator Grant</strong> — PI, 2025–29; DKK 7 million. Privacy, unlearning, and online learning.</li>
+      <li><strong>Novo Nordisk Foundation Startup Grant</strong> — PI, 2024–28; DKK 4 million.</li>
+      <li><a href="https://www.aicentre.dk/p1-programs/data-privacy-in-machine-learning">P1 Program on Data Privacy in Machine Learning</a> — Co-director with Claudio Orlandi and Rasmus Pagh, 2025–27.</li>
+      <li><strong>Hasler Stiftung Grant</strong> — PI, 2022–23; CHF 50,000. Privacy and Fairness in Machine Learning.</li>
+    </ul>
+    <h3>Organization and Service</h3>
+    <ul class="list">
+      <li>Co-organizer, <a href="https://ltsscopenhagen.github.io/">Learning Theory Summer School and Workshop</a>, Copenhagen, June 2026.</li>
+      <li>Co-organizer, <a href="https://p1dpml.github.io/workshops/workshop-1.html">Workshop on Differential Privacy and Unlearning in Machine Learning</a>, Copenhagen, June 2026.</li>
+      <li>General Chair, <a href="https://satml.org/2025/organization/">IEEE Conference on Secure and Trustworthy Machine Learning (SaTML)</a>, Copenhagen, 2025.</li>
+      <li>Co-host, Learning Theory Alliance affinity event and <a href="https://ppml-eurips-2025.github.io/">Privacy-Preserving Machine Learning Workshop</a>, EurIPS 2025.</li>
+      <li>ENCORE Workshop on Defining Holistic Private Data Science for Practice, 2025; ICLR Workshop on Pitfalls of Limited Data and Computation for Trustworthy ML, 2023.</li>
+      <li>Area Chair: AISTATS and NeurIPS. Reviewer for journals and conferences including JMLR, TMLR, ICML, ICLR, and COLT.</li>
+    </ul>
+  </section>
+  <footer class="footer"><a href="#top">Back to top</a> · <a href="/files/cv.pdf">CV</a> · <a href="mailto:amsa@di.ku.dk">Contact</a></footer>
 </BaseLayout>
+
+<script>
+  const search = document.querySelector<HTMLInputElement>('#publication-search');
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.topic-filter'));
+  const groups = Array.from(document.querySelectorAll<HTMLDetailsElement>('.pub-year-group'));
+  const recentItems = Array.from(document.querySelectorAll<HTMLElement>('#recent-publications .pub-item'));
+  let selectedTopic = 'All';
+  function filterPublications() {
+    const query = search?.value.trim().toLowerCase() ?? '';
+    const active = !!query || selectedTopic !== 'All';
+    const matches = (item: HTMLElement) => (!query || (item.dataset.search ?? '').includes(query)) && (selectedTopic === 'All' || JSON.parse(item.dataset.topics ?? '[]').includes(selectedTopic));
+    let total = 0;
+    groups.forEach((group) => {
+      const items = Array.from(group.querySelectorAll<HTMLElement>('.pub-item'));
+      const count = items.filter((item) => { item.hidden = !matches(item); return !item.hidden; }).length;
+      total += count;
+      group.hidden = count === 0;
+      group.open = active || group.dataset.defaultOpen === 'true';
+      const label = group.querySelector('.year-count');
+      if (label) label.textContent = `${count} ${count === 1 ? 'paper' : 'papers'}`;
+    });
+    recentItems.forEach((item) => { item.hidden = !matches(item); });
+    const recent = document.querySelector<HTMLElement>('#recent-publications');
+    if (recent) recent.hidden = recentItems.every((item) => item.hidden);
+    const status = document.querySelector('#publication-count');
+    if (status) status.textContent = `${total} ${total === 1 ? 'publication' : 'publications'}${active ? ' found' : ''}`;
+    const empty = document.querySelector<HTMLElement>('#publication-empty');
+    if (empty) empty.hidden = total !== 0;
+  }
+  search?.addEventListener('input', filterPublications);
+  buttons.forEach((button) => button.addEventListener('click', () => {
+    selectedTopic = button.dataset.topic ?? 'All';
+    buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    filterPublications();
+  }));
+</script>
