@@ -13,8 +13,8 @@
       "html": "Our paper <a href=\"https://openreview.net/forum?id=lyvCVfTdiY\">Online Learning and Unlearning: Efficient Algorithms with Near-Optimal Regret Guarantees</a> was published in TMLR."
     },
     {
-      "date": "2026-07-03T00:00:00Z",
-      "html": "Amartya co-organised the <a href=\"https://ltsscopenhagen.github.io/\">Learning Theory Summer School and Workshop</a> and the <a href=\"https://p1dpml.github.io/workshops/workshop-1.html\">Workshop on Privacy and Unlearning</a> in Copenhagen."
+      "date": "2026-06-27T00:00:00Z",
+      "html": "I co-organised the <a href=\"https://ltsscopenhagen.github.io/\">Learning Theory Summer School and Workshop</a> and the <a href=\"https://p1dpml.github.io/workshops/workshop-1.html\">Workshop on Differential Privacy and Unlearning in Machine Learning</a> in Copenhagen."
     },
     {
       "date": "2026-05-07T00:00:00Z",
@@ -33,12 +33,24 @@
       "html": "Our paper “Delta-Influence: Identifying Poisons via Influence Functions” was accepted at TMLR."
     },
     {
+      "date": "2026-01-01T00:00:00Z",
+      "html": "<a href=\"https://www.vikrantsinghal.com/\">Vikrant Singhal</a> joined our <a href=\"https://cope-forml.github.io/\">FoRML group</a> as a Fixed Term Assistant Professor. Welcome, Vikrant!"
+    },
+    {
+      "date": "2025-10-01T00:00:00Z",
+      "html": "<a href=\"https://giorgio-racca.github.io/\">Giorgio Racca</a> and <a href=\"https://di.ku.dk/english/staff/?pure=en/persons/913671/\">Luka Radić</a> joined our <a href=\"https://cope-forml.github.io/\">FoRML group</a> as PhD students. Welcome, Giorgio and Luka!"
+    },
+    {
       "date": "2025-09-21T00:00:00Z",
       "html": "Our paper titled <a href=\"https://arxiv.org/abs/2508.10879\">An Iterative Algorithm for Differentially Private k-PCA with Adaptive Noise</a> was accepted at <a href=\"https://neurips.cc\">NeurIPS 2025</a>."
     },
     {
       "date": "2025-09-18T18:08:39Z",
       "html": "I co-hosted two events at <a href=\"https://eurips.cc/\">EurIPS 2025</a>: the <a href=\"https://www.let-all.com/\">Learning Theory Alliance</a> affinity event and the EurIPS <a href=\"https://ppml-eurips-2025.github.io/\">Privacy-Preserving Machine Learning Workshop</a>."
+    },
+    {
+      "date": "2025-08-01T00:00:00Z",
+      "html": "I am co-directing the <a href=\"https://www.aicentre.dk/p1-programs/data-privacy-in-machine-learning\">P1 program on Data Privacy in Machine Learning</a> with Claudio Orlandi and Rasmus Pagh."
     },
     {
       "date": "2025-01-23T00:00:00Z",
