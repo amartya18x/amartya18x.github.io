@@ -1,6 +1,10 @@
 {
   "items": [
     {
+      "date": "2026-10-07T00:00:00Z",
+      "html": "Our paper <a href=\"https://johannaduengler.github.io/optimal_rates_for_adaptive_private_k-PCA.pdf\">Optimal Rates for Adaptive Private k-PCA</a> was accepted at <a href=\"https://neurips.cc/\">NeurIPS 2026</a> as a spotlight. Our paper on private question answering without private training was accepted at <a href=\"https://beyond-private-training.ai.studio/\">InfPriv: The New Landscape of AI Privacy</a>, a workshop at NeurIPS 2026."
+    },
+    {
       "date": "2026-10-05T00:00:00Z",
       "html": "My new preprint <a href=\"https://arxiv.org/abs/2610.06822\">Private online learning and prediction for Littlestone classes</a> is now available on arXiv."
     },
@@ -31,14 +35,6 @@
     {
       "date": "2026-02-23T00:00:00Z",
       "html": "Our paper “Delta-Influence: Identifying Poisons via Influence Functions” was accepted at TMLR."
-    },
-    {
-      "date": "2026-01-01T00:00:00Z",
-      "html": "<a href=\"https://www.vikrantsinghal.com/\">Vikrant Singhal</a> joined our <a href=\"https://cope-forml.github.io/\">FoRML group</a> as a Fixed Term Assistant Professor. Welcome, Vikrant!"
-    },
-    {
-      "date": "2025-10-01T00:00:00Z",
-      "html": "<a href=\"https://giorgio-racca.github.io/\">Giorgio Racca</a> and <a href=\"https://di.ku.dk/english/staff/?pure=en/persons/913671/\">Luka Radić</a> joined our <a href=\"https://cope-forml.github.io/\">FoRML group</a> as PhD students. Welcome, Giorgio and Luka!"
     },
     {
       "date": "2025-09-21T00:00:00Z",
