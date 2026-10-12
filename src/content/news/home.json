@@ -1,6 +1,14 @@
 {
   "items": [
     {
+      "date": "2026-10-12T00:00:00Z",
+      "html": "I received a DFF-Thematic grant of DKK 7,198,686 for my project <a href=\"https://dff.dk/en/our-funded-projects/see-an-overview-of-supported-research/?GoCaseId=6305-00038A\">Data-Adaptive Privacy for Machine Learning</a>, under DFF’s Research in Artificial Intelligence initiative."
+    },
+    {
+      "date": "2026-10-12T00:00:00Z",
+      "html": "I became an <a href=\"https://ellis.eu/members/fellows\">ELLIS Scholar</a>."
+    },
+    {
       "date": "2026-10-07T00:00:00Z",
       "html": "Our paper <a href=\"https://johannaduengler.github.io/optimal_rates_for_adaptive_private_k-PCA.pdf\">Optimal Rates for Adaptive Private k-PCA</a> was accepted at <a href=\"https://neurips.cc/\">NeurIPS 2026</a> as a spotlight. Our paper on private question answering without private training was accepted at <a href=\"https://beyond-private-training.ai.studio/\">InfPriv: The New Landscape of AI Privacy</a>, a workshop at NeurIPS 2026."
     },
