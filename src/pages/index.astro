@@ -15,6 +15,8 @@ const archivedTalks = talks.slice(4);
 const homeNews = await getEntry('news', 'home');
 const newsItems = (homeNews?.data.items ?? []).filter((item) => item.showOnHome !== false)
   .sort((a, b) => b.date.valueOf() - a.date.valueOf() || (b.sort ?? 0) - (a.sort ?? 0));
+const recentNews = newsItems.slice(0, 6);
+const olderNews = newsItems.slice(6);
 const recentPublications = publications.slice(0, 6);
 const publicationYears = [...new Set(publications.map((entry) => entry.year))].sort((a, b) => Number(b) - Number(a));
 const formatDate = (date, day = false) => new Intl.DateTimeFormat('en-US', { month: 'short', ...(day ? { day: 'numeric' } : {}), year: 'numeric', timeZone: 'UTC' }).format(date);
@@ -128,8 +130,14 @@ const formatDate = (date, day = false) => new Intl.DateTimeFormat('en-US', { mon
   <section class="section-card" id="news">
     <h2>Recent News</h2>
     <ul class="list-rows">
-      {newsItems.map((item) => <li class="row"><time class="badge" datetime={item.date.toISOString()}>{formatDate(item.date)}</time><div class="row-content"><p set:html={item.html}></p></div></li>)}
+      {recentNews.map((item) => <li class="row"><time class="badge" datetime={item.date.toISOString()}>{formatDate(item.date)}</time><div class="row-content"><p set:html={item.html}></p></div></li>)}
     </ul>
+    {olderNews.length > 0 && <details class="news-archive">
+      <summary><span class="news-more">More news</span><span class="news-less">Less news</span></summary>
+      <ul class="list-rows">
+        {olderNews.map((item) => <li class="row"><time class="badge" datetime={item.date.toISOString()}>{formatDate(item.date)}</time><div class="row-content"><p set:html={item.html}></p></div></li>)}
+      </ul>
+    </details>}
   </section>
 
   <section class="section-card" id="publications">
